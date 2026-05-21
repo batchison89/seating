@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Brandon &amp; Lysée — Find Your Seat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─────────────────────────────────────────────
+       BACKGROUND IMAGE
+       Replace the url() value below with your image path.
+       e.g.: url("assets/bg.jpg") or url("https://...")
+       To make it black & white, the filter: grayscale(100%)
+       is already on the element — just uncomment it.
+       Opacity is controlled by --bg-opacity.
+    ──────────────────────────────────────────────── */
+    :root {
+      --bg-image: url("YOUR_BACKGROUND_IMAGE_PATH_HERE");
+      --bg-opacity: 0.10; /* 0 = invisible, 1 = full strength */
+
+      --cream: #fdf8f2;
+      --parchment: #f5ede0;
+      --gold: #c9a96e;
+      --gold-light: #e8d5b0;
+      --brown: #7a5c3a;
+      --ink: #2d2016;
+      --muted: #9e8870;
+      --divider: rgba(201, 169, 110, 0.3);
+      --font-serif: "Cormorant Garamond", Georgia, serif;
+      --font-sans:  "Jost", sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--cream);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Background image layer */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: var(--bg-image);
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      opacity: var(--bg-opacity);
+      /* filter: grayscale(100%); */  /* ← uncomment for B&W */
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 0 1.25rem 4rem;
+    }
+
+    header {
+      text-align: center;
+      padding: 3rem 0 2rem;
+    }
+
+    .header-ornament {
+      display: block;
+      font-family: var(--font-serif);
+      font-size: 13px;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      font-weight: 300;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .couple-names {
+      font-family: var(--font-serif);
+      font-size: clamp(2.6rem, 10vw, 3.4rem);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--ink);
+      line-height: 1.1;
+      letter-spacing: 0.02em;
+    }
+
+    .couple-names span {
+      display: inline-block;
+      font-style: normal;
+      font-weight: 300;
+      color: var(--gold);
+      font-size: 0.6em;
+      vertical-align: middle;
+      margin: 0 0.3em;
+    }
+
+    .header-date {
+      margin-top: 0.75rem;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      font-weight: 300;
+      text-transform: uppercase;
+    }
+
+    .rule-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem 0 0.5rem;
+    }
+
+    .rule-row::before,
+    .rule-row::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold-light), transparent);
+    }
+
+    .find-seat-label {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      color: var(--brown);
+      white-space: nowrap;
+    }
+
+    .search-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 0.75rem 0;
+      background: rgba(253, 248, 242, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .search-inner { position: relative; }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      stroke: var(--muted);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      pointer-events: none;
+    }
+
+    #search {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 2.75rem;
+      border: 1px solid var(--gold-light);
+      border-radius: 50px;
+      background: rgba(255,255,255,0.8);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+    }
+
+    #search::placeholder { color: var(--muted); font-weight: 300; }
+
+    #search:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,169,110,0.15);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .tables-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      margin-top: 1.25rem;
+    }
+
+    .table-card {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--divider);
+      border-radius: 12px;
+      overflow: hidden;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .table-card.hidden { display: none; }
+
+    .table-card.highlighted {
+      border-color: var(--gold);
+      box-shadow: 0 2px 16px rgba(201,169,110,0.18);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.25rem 0.75rem;
+      border-bottom: 1px solid var(--divider);
+      background: rgba(245, 237, 224, 0.55);
+    }
+
+    .city-name {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--ink);
+      letter-spacing: 0.03em;
+    }
+
+    .city-story {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      color: var(--gold);
+      text-transform: uppercase;
+      text-align: right;
+      max-width: 45%;
+      line-height: 1.4;
+    }
+
+    .card-body { padding: 0.85rem 1.25rem; }
+
+    .guest-list { list-style: none; display: flex; flex-direction: column; }
+
+    .guest-item {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.38rem 0;
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--ink);
+      border-bottom: 1px solid rgba(201,169,110,0.1);
+    }
+
+    .guest-item:last-child { border-bottom: none; }
+
+    .guest-item::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .guest-item.name-match { color: var(--brown); font-weight: 500; }
+    .guest-item.name-match::before { width: 6px; height: 6px; }
+
+    .no-results {
+      display: none;
+      text-align: center;
+      padding: 2.5rem 0;
+      color: var(--muted);
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 0 0;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+
+    footer .heart { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <header>
+    <span class="header-ornament">Wedding Reception</span>
+    <h1 class="couple-names">Brandon <span>&amp;</span> Lysée</h1>
+    <!-- UPDATE DATE BELOW -->
+    <p class="header-date">Month Day, Year</p>
+    <div class="rule-row">
+      <span class="find-seat-label">Find Your Seat</span>
+    </div>
+  </header>
+
+  <div class="search-wrap">
+    <div class="search-inner">
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="search" id="search" placeholder="Search your name…"
+        autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Search for your name" />
+      <button class="search-clear" id="clearBtn" aria-label="Clear search">×</button>
+    </div>
+  </div>
+
+  <div class="tables-list" id="tablesList" role="list">
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">Florida</h2>
+        <span class="city-story">First trip together</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">Albuquerque</h2>
+        <span class="city-story">Where we both used to live</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">Mexico</h2>
+        <span class="city-story">First time out of the country</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">Hollywood</h2>
+        <span class="city-story">Hollywood nights</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">Sacramento</h2>
+        <span class="city-story">Where we met &amp; fell in love</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">Santa Cruz</h2>
+        <span class="city-story">Celebrating our June birthdays</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">Tahoe</h2>
+        <span class="city-story">Brandon doted on Lysée</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">Kansas</h2>
+        <span class="city-story">Lysée said yes!</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">Monterey</h2>
+        <span class="city-story">By the bay</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">Marin</h2>
+        <span class="city-story">Golden Gate views</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">Napa</h2>
+        <span class="city-story">Wine country memories</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">Camino</h2>
+        <span class="city-story">Apple hill days</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+    <article class="table-card" role="listitem">
+      <div class="card-header">
+        <h2 class="city-name">San Francisco</h2>
+        <span class="city-story">The city by the bay</span>
+      </div>
+      <div class="card-body"><ul class="guest-list">
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+        <li class="guest-item">[Name Here]</li>
+      </ul></div>
+    </article>
+
+  </div>
+
+  <p class="no-results" id="noResults" aria-live="polite">No guest found — check the spelling!</p>
+
+  <footer>
+    <p>With love <span class="heart">&#9829;</span> Brandon &amp; Lysée</p>
+  </footer>
+
+</div>
+
+<script>
+  const searchInput = document.getElementById("search");
+  const clearBtn    = document.getElementById("clearBtn");
+  const noResults   = document.getElementById("noResults");
+  const cards       = document.querySelectorAll(".table-card");
+
+  function runFilter() {
+    const q = searchInput.value.trim().toLowerCase();
+    clearBtn.style.display = q ? "block" : "none";
+    let anyVisible = false;
+
+    cards.forEach(card => {
+      const cityText = card.querySelector(".city-name").textContent.toLowerCase();
+      const guestEls = card.querySelectorAll(".guest-item");
+      let cardVisible = false;
+      let nameMatches = 0;
+
+      guestEls.forEach(li => {
+        li.classList.remove("name-match");
+        if (!q) { cardVisible = true; return; }
+        const nameText = li.textContent.toLowerCase();
+        if (nameText.includes(q) || cityText.includes(q)) {
+          cardVisible = true;
+          if (nameText.includes(q)) { li.classList.add("name-match"); nameMatches++; }
+        }
+      });
+
+      if (!q) { cardVisible = true; card.classList.remove("hidden", "highlighted"); }
+      else {
+        card.classList.toggle("hidden", !cardVisible);
+        card.classList.toggle("highlighted", nameMatches > 0);
+      }
+      if (cardVisible || !q) anyVisible = true;
+    });
+
+    noResults.style.display = (!anyVisible && q) ? "block" : "none";
+  }
+
+  searchInput.addEventListener("input", runFilter);
+  clearBtn.addEventListener("click", () => { searchInput.value = ""; runFilter(); searchInput.focus(); });
+</script>
+</body>
+</html>
